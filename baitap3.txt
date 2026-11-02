@@ -1,0 +1,26 @@
+
+PHẦN 1: BÁO CÁO PHÂN TÍCH (I/O) - SƠ ĐỒ BOX MODEL THỰC TẾ
+1. Phân tích hiện trạng qua DevTools (Tab Computed):
+Khi sử dụng phím F12 để kiểm tra (Inspect) hai phần tử đang bị chồng lấn ("Nội dung bài học" và "Danh sách video"), cấu trúc Box Model thực tế thể hiện như sau:
+- Phần tử 1: Khung "Danh sách video" (Video List Container)
+  + Content: Chiếm không gian thực tế của danh sách video (width: 100%, height: auto).
+  + Padding: Khoảng đệm bên trong (ví dụ: 12px các phía).
+  + Border: Đường viền hiển thị ranh giới (ví dụ: 1px solid #dcdcdc).
+  + Margin: Khoảng cách lề ngoài (đang bị thiếu hoặc thiết lập nhầm dấu, khiến không tạo đủ khoảng trống ngăn cách với phần tử phía dưới).
+- Phần tử 2: Khung "Nội dung bài học" (Lesson Content Container)
+  + Content: Chứa văn bản và video bài học.
+  + Padding: 16px.
+  + Border: 1px solid #e0e0e0.
+  + Margin: Trạng thái hiện tại đang bị âm (margin-top: -15px) hoặc thiếu margin dương, dẫn đến việc khung này trôi ngược lên và đè lên phần danh sách video bên trên.
+2. Nguyên nhân gốc rễ (Root Cause):
+- Xung đột kích thước giữa các phần tử do thiếu khoảng cách tương thích (thiếu margin-bottom hoặc margin-top).
+- Trình duyệt chưa áp dụng quy chuẩn tính toán hình học `box-sizing: border-box`, dẫn đến việc cộng dồn kích thước padding và border vào tổng chiều rộng/chiều cao, gây hiện tượng tràn khung (overflow) và chồng lấn.
+PHẦN 2: THIẾT KẾ GIẢI PHÁP KHẮC PHỤC
+Để tách biệt hoàn toàn hai khung nội dung mà không làm vỡ tổng thể giao diện trang web, thực hiện điều chỉnh tại bảng Styles trong DevTools với các đoạn mã CSS sau:
+1. Thiết lập lại chuẩn tính toán hình học (Box-Sizing):
+{box-sizing: border-box; /* Đảm bảo padding và border không làm thay đổi kích thước thực tế của khung */}
+2. Điều chỉnh khoảng cách (Spacing) giữa các khung:
+.video-list {margin-bottom: 24px; /* Tạo khoảng hở an toàn phía dưới danh sách video */}
+.lesson-content {margin-top: 16px; /* Đẩy khung nội dung bài học xuống một khoảng hợp lý, tránh đè lấn */}
+3. Xử lý chống tràn nội dung:
+.lesson-container {overflow: auto; /* Tự động ẩn hoặc tạo thanh cuộn nếu nội dung bên trong quá dài, tránh tràn ra ngoài */}
